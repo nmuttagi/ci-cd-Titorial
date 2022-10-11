@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="a79db7f1-4cc8-429d-bcac-b955c1614f61" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="ci-cd-tutorialFlow" doc:id="a4d40827-36d3-420e-9f79-08416636f800" >
+		<http:listener doc:name="Listener" doc:id="aad50150-5264-45a0-b2e0-783cce6fd578" config-ref="HTTP_Listener_config" path="/cicd"/>
+		<ee:transform doc:name="Resposne Payload" doc:id="8a0f3fba-a42e-47be-af2c-29a666217270" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Time : now() as String {format: "y-MM-dd"},
+	Message : "First ci/cd Tutorial"	
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="512d31b9-a1b2-428a-8be3-a65bd137e5c1" >
+				<ee:transform doc:name="Error Response" doc:id="fa01acfe-bedb-4333-a2c6-588b1ac7166c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	Message:"Error occured...! please check"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>
